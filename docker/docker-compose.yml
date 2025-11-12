@@ -1,0 +1,211 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:8.3
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: schedule
+      MYSQL_USER: schedule
+      MYSQL_PASSWORD: schedule
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - schedule_net
+
+  gateway:
+    image: node:20-alpine
+    container_name: schedule-gateway
+    working_dir: /usr/src/app
+    volumes:
+      - ../:/usr/src/app
+    environment:
+      APP_NAME: gateway
+      APP_PORT: 3000
+      USERS_SERVICE_URL: http://users:3001
+      CLIENTS_SERVICE_URL: http://clients:3002
+      SERVICES_SERVICE_URL: http://services:3003
+      AGENDA_SERVICE_URL: http://agenda:3004
+      AUTH_SERVICE_URL: http://auth:3005
+      NOTIFICATIONS_SERVICE_URL: http://notifications:3006
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: schedule
+      DB_PASSWORD: schedule
+      DB_NAME: schedule
+    command: >
+      sh -c "corepack enable &&
+             pnpm install &&
+             pnpm start:gateway"
+    depends_on:
+      - mysql
+      - users
+      - clients
+      - services
+      - agenda
+      - auth
+      - notifications
+    ports:
+      - '3000:3000'
+    networks:
+      - schedule_net
+  auth:
+    image: node:20-alpine
+    container_name: schedule-auth
+    working_dir: /usr/src/app
+    volumes:
+      - ../:/usr/src/app
+    environment:
+      APP_NAME: auth
+      APP_PORT: 3005
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: schedule
+      DB_PASSWORD: schedule
+      DB_NAME: schedule
+    command: >
+      sh -c "corepack enable &&
+             pnpm install &&
+             pnpm start:auth"
+    depends_on:
+      - mysql
+    ports:
+      - '3005:3005'
+    networks:
+      - schedule_net
+
+  notifications:
+    image: node:20-alpine
+    container_name: schedule-notifications
+    working_dir: /usr/src/app
+    volumes:
+      - ../:/usr/src/app
+    environment:
+      APP_NAME: notifications
+      APP_PORT: 3006
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: schedule
+      DB_PASSWORD: schedule
+      DB_NAME: schedule
+    command: >
+      sh -c "corepack enable &&
+             pnpm install &&
+             pnpm start:notifications"
+    depends_on:
+      - mysql
+    ports:
+      - '3006:3006'
+    networks:
+      - schedule_net
+
+  users:
+    image: node:20-alpine
+    container_name: schedule-users
+    working_dir: /usr/src/app
+    volumes:
+      - ../:/usr/src/app
+    environment:
+      APP_NAME: users
+      APP_PORT: 3001
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: schedule
+      DB_PASSWORD: schedule
+      DB_NAME: schedule
+    command: >
+      sh -c "corepack enable &&
+             pnpm install &&
+             pnpm start:users"
+    depends_on:
+      - mysql
+    ports:
+      - '3001:3001'
+    networks:
+      - schedule_net
+
+  clients:
+    image: node:20-alpine
+    container_name: schedule-clients
+    working_dir: /usr/src/app
+    volumes:
+      - ../:/usr/src/app
+    environment:
+      APP_NAME: clients
+      APP_PORT: 3002
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: schedule
+      DB_PASSWORD: schedule
+      DB_NAME: schedule
+    command: >
+      sh -c "corepack enable &&
+             pnpm install &&
+             pnpm start:clients"
+    depends_on:
+      - mysql
+    ports:
+      - '3002:3002'
+    networks:
+      - schedule_net
+
+  services:
+    image: node:20-alpine
+    container_name: schedule-services
+    working_dir: /usr/src/app
+    volumes:
+      - ../:/usr/src/app
+    environment:
+      APP_NAME: services
+      APP_PORT: 3003
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: schedule
+      DB_PASSWORD: schedule
+      DB_NAME: schedule
+    command: >
+      sh -c "corepack enable &&
+             pnpm install &&
+             pnpm start:services"
+    depends_on:
+      - mysql
+    ports:
+      - '3003:3003'
+    networks:
+      - schedule_net
+
+  agenda:
+    image: node:20-alpine
+    container_name: schedule-agenda
+    working_dir: /usr/src/app
+    volumes:
+      - ../:/usr/src/app
+    environment:
+      APP_NAME: agenda
+      APP_PORT: 3004
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: schedule
+      DB_PASSWORD: schedule
+      DB_NAME: schedule
+    command: >
+      sh -c "corepack enable &&
+             pnpm install &&
+             pnpm start:agenda"
+    depends_on:
+      - mysql
+    ports:
+      - '3004:3004'
+    networks:
+      - schedule_net
+
+networks:
+  schedule_net:
+    driver: bridge
+
+volumes:
+  mysql_data:
+

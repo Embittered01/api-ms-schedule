@@ -1,0 +1,7 @@
+{
+  "name": "@api-schedule/auth",
+  "version": "0.0.1",
+  "main": "dist/apps/auth/main",
+  "typings": "dist/apps/auth/main.d.ts"
+}
+

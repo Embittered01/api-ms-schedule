@@ -1,99 +1,170 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# API Schedule Monorepo
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend modular basado en NestJS para la administración de agenda de una empresa. La solución se organiza como monorepo con microservicios independientes para usuarios, clientes, catálogo de servicios y agenda. El código compartido (configuración, utilidades, conexión MySQL) se expone a través de librerías reutilizables.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Estructura
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ pnpm install
+```
+apps/
+  gateway/
+  auth/
+  notifications/
+  agenda/
+  clients/
+  services/
+  users/
+libs/
+  common/
+  database/
 ```
 
-## Compile and run the project
+- `apps/gateway`: puerta de entrada HTTP que enruta solicitudes hacia los microservicios internos.
+- `apps/auth`: autenticación y autorización.
+- `apps/notifications`: entrega de notificaciones y recordatorios.
+- `apps/<service>`: resto de microservicios verticales (usuarios, clientes, servicios, agenda).
+- `libs/common`: Configuración global (variables de entorno, validaciones, helpers).
+- `libs/database`: Módulo Sequelize configurado para MySQL, modelos compartidos y soft delete.
+
+## Requisitos
+
+- Node.js 20+
+- pnpm 10+
+- MySQL 8.x o compatible (MariaDB)
+
+## Instalación
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+pnpm install
 ```
 
-## Run tests
+## Persistencia y modelos
+
+- ORM: [Sequelize](https://sequelize.org/) con `sequelize-typescript`, configuración global `paranoid` (soft delete) y campos audit (`created_at`, `updated_at`, `deleted_at`).
+- Modelos compartidos (ubicados en `libs/database/src/models`):
+  - `Role`: código único y descripción. Relación 1:N con `User`.
+  - `User`: nombres, email único, password hasheada (pendiente), pertenencia a `Role`.
+  - `Client`: datos de contacto, RUT y email únicos, notas opcionales.
+  - `Category`: agrupa servicios, incluye `display_order`.
+  - `Service`: nombre, descripción, precio, duración opcional, pertenece a `Category`.
+  - `Appointment`: combina fecha y hora en `scheduled_at`, estado (`scheduled/completed/cancelled`), método de pago (`cash/card/transfer/other`), giftcard y causa de cancelación opcional.
+  - `NotificationTemplate`: define plantillas por canal (`email/sms/push`).
+  - `NotificationLog`: registra envíos de notificaciones, destinatario, estado (`pending/sent/failed`) y trazabilidad.
+- Cada microservicio importa sólo los modelos que necesita mediante `SequelizeModule.forFeature(...)`.
+
+## Variables de entorno
+
+Crea un archivo `.env` en la raíz con la configuración base:
+
+```
+NODE_ENV=development
+APP_NAME=gateway
+APP_PORT=3000
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=secret
+DB_NAME=schedule
+
+USERS_SERVICE_URL=http://localhost:3001
+CLIENTS_SERVICE_URL=http://localhost:3002
+SERVICES_SERVICE_URL=http://localhost:3003
+AGENDA_SERVICE_URL=http://localhost:3004
+AUTH_SERVICE_URL=http://localhost:3005
+NOTIFICATIONS_SERVICE_URL=http://localhost:3006
+```
+
+- Cada servicio puede sobreescribir `APP_NAME` y `APP_PORT` usando los scripts descritos abajo.
+- Ajusta las credenciales de MySQL según tu entorno.
+- Las URLs de microservicios sirven para que el gateway enrute las solicitudes. Ajusta a la infraestructura real.
+
+## Ejecución
+
+Los scripts usan `cross-env` para establecer el nombre/puerto por servicio. Se pueden lanzar en paralelo.
 
 ```bash
-# unit tests
-$ pnpm run test
+# Gateway
+pnpm start:gateway      # modo normal
+pnpm start:gateway:dev  # watch mode
 
-# e2e tests
-$ pnpm run test:e2e
+# Auth
+pnpm start:auth
+pnpm start:auth:dev
 
-# test coverage
-$ pnpm run test:cov
+# Notifications
+pnpm start:notifications
+pnpm start:notifications:dev
+
+# Users
+pnpm start:users
+pnpm start:users:dev
+
+# Clients
+pnpm start:clients
+pnpm start:clients:dev
+
+# Services
+pnpm start:services
+pnpm start:services:dev
+
+# Agenda
+pnpm start:agenda
+pnpm start:agenda:dev
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Builds
 
 ```bash
-$ pnpm install -g mau
-$ mau deploy
+pnpm build              # compila gateway + microservicios
+pnpm build:auth         # compila solo auth
+pnpm build:notifications # compila solo notifications
+pnpm build:users        # compila solo users
+# ... idem para clients/services/agenda
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Tests
 
-## Resources
+Pendiente de ajuste para entorno multi-app. Por ahora se mantiene configuración básica Jest.
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+pnpm test
+pnpm test:e2e
+pnpm test:cov
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Migraciones
 
-## Support
+El esquema se gestiona con `sequelize-cli`. Para crear las tablas:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+pnpm migration:run          # aplica migraciones pendientes
+pnpm migration:revert       # revierte la última migración
+pnpm migration:generate --name add-new-table
+```
 
-## Stay in touch
+Las migraciones viven en `database/migrations` y usan las variables definidas en `.env`.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Próximos pasos
 
-## License
+- Configurar migrations/seeders (p. ej. `sequelize-cli` o `umzug`) para versionar el esquema.
+- Configurar pipelines CI/CD y estrategia de deployment (Docker / Kubernetes / etc.).
+- Añadir comunicación síncrona/asíncrona entre servicios según necesidades del dominio.
+- Elaborar políticas de seguridad (auth, rate limiting) en el gateway.
+- Implementar hashing de contraseñas y emisión de tokens en `auth`.
+- Crear flujos de negocio en cada microservicio aprovechando los modelos Sequelize.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Docker (producción)
+
+Cada microservicio y el gateway cuentan con su propio `Dockerfile` multi-stage. Ejemplo de build:
+
+```bash
+docker build -t api-schedule-gateway -f apps/gateway/Dockerfile .
+docker build -t api-schedule-auth -f apps/auth/Dockerfile .
+docker build -t api-schedule-notifications -f apps/notifications/Dockerfile .
+docker build -t api-schedule-users -f apps/users/Dockerfile .
+docker build -t api-schedule-clients -f apps/clients/Dockerfile .
+docker build -t api-schedule-services -f apps/services/Dockerfile .
+docker build -t api-schedule-agenda -f apps/agenda/Dockerfile .
+```
+
+Las imágenes exponen los puertos 3000-3006 respectivamente y ejecutan `node dist/apps/<servicio>/main`.

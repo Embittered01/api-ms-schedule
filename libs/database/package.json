@@ -1,0 +1,7 @@
+{
+  "name": "@api-schedule/database",
+  "version": "0.0.1",
+  "main": "dist/libs/database",
+  "typings": "dist/libs/database/index.d.ts"
+}
+

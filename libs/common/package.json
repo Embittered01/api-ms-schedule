@@ -1,0 +1,7 @@
+{
+  "name": "@api-schedule/common",
+  "version": "0.0.1",
+  "main": "dist/libs/common",
+  "typings": "dist/libs/common/index.d.ts"
+}
+

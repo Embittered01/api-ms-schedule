@@ -1,0 +1,7 @@
+{
+  "name": "@api-schedule/services",
+  "version": "0.0.1",
+  "main": "dist/apps/services/main",
+  "typings": "dist/apps/services/main.d.ts"
+}
+

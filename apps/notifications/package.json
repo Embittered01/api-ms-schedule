@@ -1,0 +1,7 @@
+{
+  "name": "@api-schedule/notifications",
+  "version": "0.0.1",
+  "main": "dist/apps/notifications/main",
+  "typings": "dist/apps/notifications/main.d.ts"
+}
+

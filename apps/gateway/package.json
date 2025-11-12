@@ -1,0 +1,7 @@
+{
+  "name": "@api-schedule/gateway",
+  "version": "0.0.1",
+  "main": "dist/apps/gateway/main",
+  "typings": "dist/apps/gateway/main.d.ts"
+}
+
