@@ -17,7 +17,8 @@ export default () => ({
     usersUrl: process.env.USERS_SERVICE_URL ?? 'http://localhost:3001',
     clientsUrl: process.env.CLIENTS_SERVICE_URL ?? 'http://localhost:3002',
     catalogUrl: process.env.SERVICES_SERVICE_URL ?? 'http://localhost:3003',
-    agendaUrl: process.env.AGENDA_SERVICE_URL ?? 'http://localhost:3004',
+    appointmentUrl:
+      process.env.APPOINTMENT_SERVICE_URL ?? 'http://localhost:3004',
     authUrl: process.env.AUTH_SERVICE_URL ?? 'http://localhost:3005',
     notificationsUrl:
       process.env.NOTIFICATIONS_SERVICE_URL ?? 'http://localhost:3006',

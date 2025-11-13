@@ -16,10 +16,10 @@ import { NotificationsService } from './notifications.service';
     CommonModule,
     DatabaseModule,
     SequelizeModule.forFeature([
-      NotificationTemplate,
-      NotificationLog,
-      Client,
       Appointment,
+      Client,
+      NotificationLog,
+      NotificationTemplate,
     ]),
   ],
   controllers: [NotificationsController],

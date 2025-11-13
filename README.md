@@ -1,6 +1,6 @@
 # API Schedule Monorepo
 
-Backend modular basado en NestJS para la administración de agenda de una empresa. La solución se organiza como monorepo con microservicios independientes para usuarios, clientes, catálogo de servicios y agenda. El código compartido (configuración, utilidades, conexión MySQL) se expone a través de librerías reutilizables.
+Backend modular basado en NestJS para la administración de citas de una empresa. La solución se organiza como monorepo con microservicios independientes para usuarios, clientes, catálogo de servicios y appointment. El código compartido (configuración, utilidades, conexión MySQL) se expone a través de librerías reutilizables.
 
 ## Estructura
 
@@ -9,7 +9,7 @@ apps/
   gateway/
   auth/
   notifications/
-  agenda/
+  appointment/
   clients/
   services/
   users/
@@ -21,7 +21,7 @@ libs/
 - `apps/gateway`: puerta de entrada HTTP que enruta solicitudes hacia los microservicios internos.
 - `apps/auth`: autenticación y autorización.
 - `apps/notifications`: entrega de notificaciones y recordatorios.
-- `apps/<service>`: resto de microservicios verticales (usuarios, clientes, servicios, agenda).
+- `apps/<service>`: resto de microservicios verticales (usuarios, clientes, servicios, appointment).
 - `libs/common`: Configuración global (variables de entorno, validaciones, helpers).
 - `libs/database`: Módulo Sequelize configurado para MySQL, modelos compartidos y soft delete.
 
@@ -69,7 +69,7 @@ DB_NAME=schedule
 USERS_SERVICE_URL=http://localhost:3001
 CLIENTS_SERVICE_URL=http://localhost:3002
 SERVICES_SERVICE_URL=http://localhost:3003
-AGENDA_SERVICE_URL=http://localhost:3004
+APPOINTMENT_SERVICE_URL=http://localhost:3004
 AUTH_SERVICE_URL=http://localhost:3005
 NOTIFICATIONS_SERVICE_URL=http://localhost:3006
 ```
@@ -107,9 +107,9 @@ pnpm start:clients:dev
 pnpm start:services
 pnpm start:services:dev
 
-# Agenda
-pnpm start:agenda
-pnpm start:agenda:dev
+# Appointment
+pnpm start:appointment
+pnpm start:appointment:dev
 ```
 
 ### Builds
@@ -119,7 +119,7 @@ pnpm build              # compila gateway + microservicios
 pnpm build:auth         # compila solo auth
 pnpm build:notifications # compila solo notifications
 pnpm build:users        # compila solo users
-# ... idem para clients/services/agenda
+# ... idem para clients/services/appointment
 ```
 
 ## Tests
@@ -164,7 +164,7 @@ docker build -t api-schedule-notifications -f apps/notifications/Dockerfile .
 docker build -t api-schedule-users -f apps/users/Dockerfile .
 docker build -t api-schedule-clients -f apps/clients/Dockerfile .
 docker build -t api-schedule-services -f apps/services/Dockerfile .
-docker build -t api-schedule-agenda -f apps/agenda/Dockerfile .
+docker build -t api-schedule-appointment -f apps/appointment/Dockerfile .
 ```
 
 Las imágenes exponen los puertos 3000-3006 respectivamente y ejecutan `node dist/apps/<servicio>/main`.

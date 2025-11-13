@@ -10,7 +10,7 @@ COPY apps ./apps
 COPY libs ./libs
 
 RUN pnpm install --frozen-lockfile
-RUN pnpm build:agenda
+RUN pnpm build:appointment
 RUN pnpm prune --prod
 
 FROM node:20-alpine AS runtime
@@ -24,5 +24,5 @@ COPY package.json package.json
 
 EXPOSE 3004
 
-CMD ["node", "dist/apps/agenda/main"]
+CMD ["node", "dist/apps/appointment/main"]
 

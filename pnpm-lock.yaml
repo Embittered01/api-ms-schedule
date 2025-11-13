@@ -121,7 +121,7 @@ importers:
         specifier: ^5.1.3
         version: 5.9.3
 
-  apps/agenda: {}
+  apps/appointment: {}
 
   apps/auth: {}
 

@@ -20,7 +20,7 @@ const validationSchema = Joi.object({
   SERVICES_SERVICE_URL: Joi.string()
     .uri({ scheme: ['http', 'https'] })
     .default('http://localhost:3003'),
-  AGENDA_SERVICE_URL: Joi.string()
+  APPOINTMENT_SERVICE_URL: Joi.string()
     .uri({ scheme: ['http', 'https'] })
     .default('http://localhost:3004'),
   AUTH_SERVICE_URL: Joi.string()

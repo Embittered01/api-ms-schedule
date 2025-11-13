@@ -28,7 +28,7 @@ services:
       USERS_SERVICE_URL: http://users:3001
       CLIENTS_SERVICE_URL: http://clients:3002
       SERVICES_SERVICE_URL: http://services:3003
-      AGENDA_SERVICE_URL: http://agenda:3004
+      APPOINTMENT_SERVICE_URL: http://appointment:3004
       AUTH_SERVICE_URL: http://auth:3005
       NOTIFICATIONS_SERVICE_URL: http://notifications:3006
       DB_HOST: mysql
@@ -45,7 +45,7 @@ services:
       - users
       - clients
       - services
-      - agenda
+      - appointment
       - auth
       - notifications
     ports:
@@ -177,14 +177,14 @@ services:
     networks:
       - schedule_net
 
-  agenda:
+  appointment:
     image: node:20-alpine
-    container_name: schedule-agenda
+    container_name: schedule-appointment
     working_dir: /usr/src/app
     volumes:
       - ../:/usr/src/app
     environment:
-      APP_NAME: agenda
+      APP_NAME: appointment
       APP_PORT: 3004
       DB_HOST: mysql
       DB_PORT: 3306
@@ -194,7 +194,7 @@ services:
     command: >
       sh -c "corepack enable &&
              pnpm install &&
-             pnpm start:agenda"
+             pnpm start:appointment"
     depends_on:
       - mysql
     ports:

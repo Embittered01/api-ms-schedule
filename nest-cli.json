@@ -36,13 +36,13 @@
         "tsConfigPath": "apps/services/tsconfig.app.json"
       }
     },
-    "agenda": {
+    "appointment": {
       "type": "application",
-      "root": "apps/agenda",
+      "root": "apps/appointment",
       "entryFile": "main",
-      "sourceRoot": "apps/agenda/src",
+      "sourceRoot": "apps/appointment/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/agenda/tsconfig.app.json"
+        "tsConfigPath": "apps/appointment/tsconfig.app.json"
       }
     },
     "auth": {

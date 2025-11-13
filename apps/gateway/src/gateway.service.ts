@@ -9,7 +9,7 @@ type ServiceKey =
   | 'users'
   | 'clients'
   | 'services'
-  | 'agenda'
+  | 'appointment'
   | 'auth'
   | 'notifications';
 
@@ -26,7 +26,7 @@ export class GatewayService {
       users: this.configService.get<string>('services.usersUrl')!,
       clients: this.configService.get<string>('services.clientsUrl')!,
       services: this.configService.get<string>('services.catalogUrl')!,
-      agenda: this.configService.get<string>('services.agendaUrl')!,
+      appointment: this.configService.get<string>('services.appointmentUrl')!,
       auth: this.configService.get<string>('services.authUrl')!,
       notifications: this.configService.get<string>(
         'services.notificationsUrl',

@@ -3,8 +3,8 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { CommonModule } from '@common';
 import { DatabaseModule } from '@database';
 import { Appointment, Client, User, Service } from '@database/models';
-import { AgendaController } from './agenda.controller';
-import { AgendaService } from './agenda.service';
+import { AppointmentController } from './appointment.controller';
+import { AppointmentService } from './appointment.service';
 
 @Module({
   imports: [
@@ -12,8 +12,8 @@ import { AgendaService } from './agenda.service';
     DatabaseModule,
     SequelizeModule.forFeature([Appointment, Client, User, Service]),
   ],
-  controllers: [AgendaController],
-  providers: [AgendaService],
+  controllers: [AppointmentController],
+  providers: [AppointmentService],
 })
-export class AgendaModule {}
+export class AppointmentModule {}
 
